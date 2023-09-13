@@ -1,0 +1,42 @@
+- name: Install Jenkins
+  hosts: localhost
+  become: yes
+
+  tasks:
+  - name: Install latest version of java
+    apt:
+      name: openjdk-11-jdk
+      state: present
+
+  - name: Update all packages
+    apt:
+      name: '*'
+      state: latest
+
+  - name: Get Key
+    get_url:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+      dest: /usr/share/keyrings/jenkins-keyring.asc
+
+  - name: create repo
+    apt_repository:
+      repo: deb http://pkg.jenkins.io/debian-stable binary/
+      state: present
+ 
+  - name: copy
+    copy:
+      src: /etc/apt/sources.list.d/pkg_jenkins_io_debian_stable.list
+      dest: /etc/apt/sources.list.d/jenkins.list
+      owner: root
+      mode: '777'
+        
+  - name: Install Jenkins
+    apt: 
+      name: jenkins
+      update_cache: yes
+      install_recommends: no      
+
+  - name: Start service jenkins, if not started
+    service:
+      name: jenkins
+      state: started

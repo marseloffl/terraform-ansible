@@ -1,0 +1,42 @@
+- hosts: localhost
+  become: yes
+  vars:
+
+  tasks:
+  - name: Update all packages
+    apt:
+      name: '*'
+      state: latest
+
+  - name: Install latest version of java
+    apt:
+      name: openjdk-11-jdk
+      state: present
+
+  - name: Downloading Tomcat
+    get_url: 
+      url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.80/bin/apache-tomcat-9.0.80.tar.gz
+      dest: /opt
+      mode: '777'
+
+  - name: Extract Tomcat tar file
+    ansible.builtin.unarchive:
+      src: /opt/apache-tomcat-9.0.80.tar.gz
+      dest: /opt
+      mode: '777'
+
+  - name: Starting Tomcat
+    shell: nohup /opt/apache-tomcat-9.0.78/bin/startup.sh &          
+
+  - name: Download Smaple war file (Deploy Java) 
+    get_url: 
+      url: https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war
+      dest: /home/ubuntu
+      mode: '777'
+
+  - name: Copy file with owner and permissions
+    copy:
+      src: /home/ubuntu/sample.war
+      dest: /opt/apache-tomcat-9.0.80/webapps/
+      mode: '777'   
+
